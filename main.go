@@ -247,7 +247,10 @@ func main() {
 							(c.shootState == Paper && client.shootState == Rock) ||
 							(c.shootState == Scissors && client.shootState == Paper) {
 							winner = c
-
+						} else if (client.shootState == Rock && c.shootState == Scissors) ||
+							(client.shootState == Paper && c.shootState == Rock) ||
+							(client.shootState == Scissors && c.shootState == Paper) {
+							winner = &client
 						}
 					}
 					var res []byte
