@@ -263,6 +263,14 @@ func main() {
 						log.Println(err)
 						return
 					}
+					// reset shoot state
+					for _, c := range rooms[roomID].clients {
+						c.shootState = None
+						for s := range roomReadyState[roomID] {
+							roomReadyState[roomID][s] = false
+						}
+					}
+
 					for _, c := range rooms[roomID].clients {
 						c.conn.WriteMessage(websocket.TextMessage, res)
 					}
