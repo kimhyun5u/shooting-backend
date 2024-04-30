@@ -108,7 +108,18 @@ func main() {
 				roomReadyState[roomID][client.id] = false
 				log.Print("Joining rooms", roomID)
 
-				res, err := json.Marshal(map[string]interface{}{"joined": client.id})
+				res, err := json.Marshal(map[string]interface{}{"new": client.id})
+				if err != nil {
+					log.Println(err)
+					return
+				}
+				for _, c := range rooms[roomID].clients {
+					if c.conn != client.conn {
+						c.conn.WriteMessage(websocket.TextMessage, res)
+					}
+				}
+
+				res, err = json.Marshal(map[string]interface{}{"joined": client.id})
 				if err != nil {
 					log.Println(err)
 					return
@@ -122,9 +133,15 @@ func main() {
 					log.Println("No rooms joined")
 					return
 				}
+				offer, err := json.Marshal(data)
+				if err != nil {
+					log.Println(err)
+					return
+				}
+
 				for _, c := range rooms[roomID].clients {
-					if c.conn != client.conn {
-						c.conn.WriteMessage(websocket.TextMessage, message)
+					if c.conn != client.conn && c.id == data["to"] {
+						c.conn.WriteMessage(websocket.TextMessage, offer)
 					}
 				}
 			}
@@ -135,7 +152,7 @@ func main() {
 					return
 				}
 				for _, c := range rooms[roomID].clients {
-					if c.conn != client.conn {
+					if c.conn != client.conn && c.id == data["to"] {
 						c.conn.WriteMessage(websocket.TextMessage, message)
 					}
 				}
